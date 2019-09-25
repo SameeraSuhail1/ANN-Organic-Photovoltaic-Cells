@@ -1,0 +1,2473 @@
+---
+title: "Project Report"
+header-includes:
+  - \widowpenalties 1 150
+   \usepackage{float}
+   \floatplacement{figure}{H}
+   \floatplacement{table}{H}
+author: "Sameera Suhail"
+date: "6/12/2019"
+
+output: 
+
+
+  bookdown::pdf_document2:
+    toc: no
+    keep_tex: yes
+    fig_caption: true
+    includes:
+      in_header: import.sty
+      before_body: front.sty
+      after_body: tail.sty
+
+
+csl: ieee.csl
+bibliography: MajorP_library.bib
+---
+
+
+
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(reticulate)
+library(kableExtra)
+library(readxl)
+reticulate::use_python(python = "C:/ProgramData/Anaconda3/python.exe")
+```
+
+
+
+\newpage
+
+
+# Introduction
+
+
+
+
+
+In recent years, organic photovoltaics (OPVs) have become popular due to their low cost, easy manufacturing, high flexibility and high absorption coefficients. They don’t require high-temperature vacuum processes for manufacturing which makes it possible to produce them in bulk, using methods such as spin-coating, ink-jet printing, spray deposition and roll-to-roll processing [@Hoth2008; @Manceau2011; @Krebs2009; @Ribierre2011; @Kim2014; @Andersen2014; @Mazzio2015; @Ribierre2015; @Gu2017; @Stevenson2015; @Joly2016; @Koppitz2017]. Despite the many benefits of adopting OPVs commercially, their use remains limited due to their low efficiency and stability. Till 2018, OPVs with efficiencies greater than 10% have been reported[@You2013; @Zhao2016; @Chen2015; @Park2016; @Scharber2006]. The degradation mechanisms responsible for low lifetimes of OPVs are environmental factors such as exposure to $O_2$ and $H_2O$, photochemical and metal ion diffusion from the electrodes.
+
+
+The functioning of an organic solar cell includes a number of steps. Firstly, under illumination, a photon is absorbed by the active layer leading to the formation of an electron-hole pair. The pair (exciton) is then separated and the electrons go towards cathode and the holes go towards anode. This means that the cathode is supposed to have lower work functions to attract the electrons while the anode is supposed to have higher work functions to attract the holes. The current, therefore, flows out of the anode side of the photovoltaic cell and into the cathode. Ideally, the contact resistance at the electrode interfaces determines the device photovoltage. The smaller the resistance, the smaller is the barrier that the charges experience at the electrodes. Additional layers are included between the active layer and each electrode to modify their work functions. LiF is a common material that reduces the work function of the cathode by being used between the metal cathode and the active layer [@Brabec2002]. Similarly, poly(3,4-ethylenedioxythiophene):poly(styrenesulfonate) (PEDOT:PSS) increases the work function of the anode side of the cell and helps in reducing the injection barrier experienced by the holes[@Brown1999].
+
+
+Therefore, the PEDOT:PSS layer sitting between the Titanium Indium oxide anode and the active layer is called a Hole Extraction Layer (HEL). It has applications in other organic optoelectronic devices and is cheap, environmentally friendly and easily manufactured without requiring high temperature processing. The conducting polymer has large ionization potential, high conductivity and large transparency. The transparency ensures that light reaches the active layer where the disassociation of excitons actually occurs.
+
+
+PEDOT:PSS, however, has its own share of issues. Its high chemical reactivity makes the cell susceptible to degradation due to environmental factors [@DeJong2000]. Its electronic properties are modified for the worse when the hygroscopic layer absorbs moisture and its work function reduces towards vacuum, thereby, decreasing the charge extraction capacity of the OPV. In the study by Howells et al. [@Howells2018] anionic fluorinated ionomers (PFI) were used as additives in the PEDOT:PSS layer. The advantage attained from doing so was twofold: first to reduce degradation of OPV from $H_2O$ and $O_2$; second to tune its work function to higher values leading to better charge extraction. Different concentrations of PFI were experimented with in the study at hand [@Howells2018]. Although, the effect of PFI concentration was studied on a number of OPV characteristics, in this study I attempted to use Neural Networks to model only the transmittance as a function of light wavelength and the J-V characteristics at 0 hour of continuous AM1.5 G illumination at 100mW cm-2.
+The rest of the report has been divided into a number of sections. Section 2 gives an overview of the development of OPVs since their discovery and the use of neural networks in past researches involving modeling of solar cell characteristics. Section 3 describes briefly the two different types of ANN that will be employed in this study and the design of experiments. Section 4 shows the analysis and results obtained. Finally section 5 gives the concluding remarks on the results and implications.
+
+
+# Literature Review
+The very first OPVs consisted of a single organic layer between two metal electrodes having different work functions[@Chamberlain1983; @Wohrle1991]. Then in 1986, heterojunction bilayers came to the scene where two layers having n-type and p-type properties respectively were sandwiched between the two electrodes [@Tang1986]. As more research led to the development of conjugated polymers, OPVs with polymer-fullerene bulk heterojunction became popular [@Yu1995; @Yang1996]. The most widely used one is P3HT:PC61BM bulk heterojunction, where PC61BM is a fullerene derivative acceptor with high electron affinity and P3HT is a polymer donor with high ionization potential. The aim of bulk heterojunction  is to intermix the acceptor and donor polymers in bulk in order to increase the area for charge separation to occur. This ensures that recombination stays to a minimum and all excitons are disassociated. The aforementioned P3HT:PC61BM devices are made using solution casting of P3HT and PC61BM blends [@Padinger2003]. 
+Attempts have been made to accurately model the characteristics of OPVs in order to enhance the design of solar cells. Suliman et al. [@Suliman2017] achieved optimal device performance using response surface methodology using three variables: polymer concentration, polymer-fullerene ratio and active layer spinning speed. The use of a statistical tools meant the use of complex mathematics. Pillai et al. [@Pillai2017] opted to use simple circuit equations of a reverse double diode model to model the behavior of nav-100 an OPV. The unknown parameters in the double diode model were nevertheless extracted using Genetic Algorithm. Fallahpour et al. [@Fallahpour2014] adopted Transfer Matrix Method and Drift Diffusion concept to model the model light absorption and charge transport respectively for energetically disordered solar cells. In such studies involving analytical modeling techniques, results are often obtained after several assumptions and approximations [@Hsu2008]. 
+
+
+Artificial neural networks (ANNs) have, however, been known to give excellent results in areas involving high noise and non-linear input to output mapping [@Haykin1999]. The present study is based on the experimental study by Howell et al. [@Howells2018], where the optoelectronic and topographical properties of PEDOT:PSS with different concentrations of PFI additive were studied. The characteristics studied were transmittance, topography, work function, contact angle with water, J-V device characteristics and degradation studies using Jsc, Voc, Fill Factor (FF), and Power Conversion Efficiency (PCE) as parameters [@Howells2018]. 
+
+
+# Research Design
+
+## Experiment Characterization and Input Dataset
+The transmission (T%) vs. wavelength ($\lambda$) and current density (J) vs. voltage (V) characteristics were modeled using ANNS. Both characteristics were first modeled using multilayer perceptrons (MLPs) and then functional link neural networks (FLANNs). To decide the best architecture, the number of hidden layers in MLP was restricted to one as the number of features was two at most. The number of neurons in the hidden layer was, however, varied to arrive at the architecture giving the best performance. With regards to FLANN, the polynomial used for functional expansion was varied among Chebyshev, Legendre, Trigonometric and Power. The polynomial with relatively better performance among these four was finally chosen. 
+
+![Transmittance vs. wavelength \label{fig:transfig}](images\trans.jpg){ width=50% }
+
+
+
+
+
+
+
+
+
+![Current Density vs. Voltage \label{fig:JVfig}](images\JV.jpg){ width=50% }
+
+
+
+
+
+The two characteristics obtained experimentally in the parent study are shown in Figures \ref{fig:transfig} and \ref{fig:JVfig}.
+
+
+
+The experiments for each characteristic were divided into two: one with a single input and a single output and the other one with two inputs (second one being the concentration of PFI) and one output. 
+
+![Experiment Design \label{fig:blocks}](images\block.jpg){ width=100% }
+
+Thus, depending on whether the characteristic is T% vs. $\lambda$ or J vs. V, the experiments were designed as shown in Figure \ref{fig:blocks}.
+
+
+For the single-input experiments, the ANN is trained and tested using data corresponding to any one PFI concentration. The best-architecture is found using that concentration and the final ANN is used on the data for other concentrations. For the two-input experiments, all available data points are used for training and testing to find the best architecture. To judge the reliability of the final ANN, a new PFI concentration is given to the ANN to predict its transmittance/current density. True output values for this concentration are not known and therefore it is not possible to use performance metrics such as mean absolute error (MAE) etc. to judge its performance numerically. However, the graph corresponding to the new concentration is plotted on the existing figure obtained experimentally. The position of the new line with respect to other concentrations’ lines gives a rough idea about the accuracy and reliability of the ANN.
+
+
+The numbers of samples to ANN for single-input experiments are between 26 and 27, while for two-input experiments they are 100 for J vs. V and 162 for T% vs. $\lambda$ respectively. In the case of FLANN, each feature was expanded into five features using a polynomial. The relatively low numbers of samples were split for training and testing into 70% and 30% of the total samples. This meant that the ANN was trained with as low as 19 samples. This limited the ANN from having a vast pool of examples to learn from.
+
+
+
+## Multilayer Perceptron
+Multilayer perceptrons are neural networks with one or more hidden layers between the input layer and output layer. Each layer is composed of a number of nodes or neurons which are processing units for the data they receive from the previous layer. The input layer doesn’t have a preceding layer and therefore accepts the data samples directly and has neurons equal to the number of features in the dataset. The neurons in the subsequent layers are connected to the previous layers’ neurons with connecting links, each associated with a number called weight. The weight multiples the output of a neuron and gives the multiplied value as an input to the next neuron, which then modifies the input according to its activation function.
+
+
+![Multilayer Perceptron \label{fig:mlp}](images\mlp.jpg){ width=50% }
+
+Figure \ref{fig:mlp} shows the general architecture of an ANN. A fully connected neuron network has no broken links between any two layers. The more number of features and more complex the pattern to be learned, the greater number of layers and neurons may be required. 
+The neural network learns during the training phase where it accepts the training samples and outputs the predicted values using a set of randomly assigned weights. The predicted values are compared with the true values and the errors are used to slightly modify the weights. The network again outputs some values to be compared with true values, and to be used to again modify the weights in the direction of error reduction. This iterative process employs back propagation algorithm and stops when the network has converged i.e. the predicted and true values come sufficiently close numerically.
+
+A number of training algorithms exist that can optimize the performance function. These optimizers are based on either the gradient of network performance or the Jacobian of errors. Modifications in these two classes of backpropagation algorithms result in a number of possible optimizers.
+
+
+## Functional Link Neural Network
+Functional link neural networks are single-neuron neural networks that have an additional block preceding the neuron for the purpose of functionally expanding the initial features. The number of features being supplied to the neuron increases by a factor equal to the number of polynomials being used for functional expansion. FLANNs are based on the Cover theorem which states that projecting the features into a higher dimensional space increases the probability of linearly separating the training samples. 
+
+Therefore, if the input vector is: 
+
+
+\begin{equation}
+X = [x_1, x_2, \ldots x_n] \label{eq:vectoreq}
+\end{equation}
+
+Functional expansion will expand each individual variable of a sample into k variables. The final number of inputs to the neuron will then be $nk$
+
+![Functional Link Neural Network \label{fig:flann}](images\flann.jpg){ width=100% }
+
+
+Figure \ref{fig:flann} shows each of the two inputs being expanded by the means of functions $f_i$ where $i \in [0,1, \ldots k-1]$. In the present study, the functions used are Chebyshev, Legendre, Power and Trigonometric as given in Equations \ref{eq:Chebyshev}, \ref{eq:Legendre}, \ref{eq:power} and \ref{eq:Trig} respectively
+
+\begin{equation}
+X_i=[1,x_i,( 2x_i^2-1),( 4x_i^3-3x_i ),( 8x_i^4-8x_i^2+1)] \label{eq:Chebyshev}
+\end{equation}
+
+
+\begin{equation}
+X_i=[1,x_i,( 3x_i^2-1)/2,( 5x_i^3-3x_i)/2,( 35x_i^4-30x_i^2+3)/8] \label{eq:Legendre}
+\end{equation}
+
+
+\begin{equation}
+X_i=[1,x_i,x_i^2,x_i^3,x_i^4]\label{eq:power}
+\end{equation}
+
+\begin{equation}
+X_i=[x_i,\cos x_i, \sin x_i,\cos 2\pi x_i,\sin 2\pi x_i] \label{eq:Trig}
+\end{equation}
+
+
+The purpose of using FLANNs is to reduce training time and make the prediction more computationally efficient. 
+
+
+## Complexity Comaprison of FLANN and MLP
+The complexity of FLANN is lower than that of MLP. The greater the difference in network sizes of MLP and FLANN, the greater will be the reduction in complexity. The steps that each epoch will undergo in the training process are:
+
+
+* Feedforward calculations to produce the output
+* Error Calculations for each layer
+* Modification of weights and biases during backpropagation
+
+
+
+To mathematically compare the computational complexities of MLP and FLANN, consider a FLANN with architecture ${G-K}$ where G is the number of input variables to the neuron and K is the number of outputs (one in this study). For the same prediction problem, the corresponding MLP has an architecture ${H-I-K}$ where H is the reduced number of input variables prior to functional expansion, I is the number of neurons in the hidden layer and K is the same as described above i.e. the number of outputs.
+
+
+
+
+```{r CompComplex}                          
+df <- read_excel("TableCC.xlsx",
+                            sheet = 1)
+knitr::kable(df, caption="Computational Complexity")%>% row_spec(0,bold=TRUE) %>% 
+kable_styling()
+
+```
+
+The comparison has been shown in Table \ref{tab:CompComplex}
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+
+
+
+
+# Results and Analysis
+
+
+
+
+## Trasmittance Experiment 1.1
+
+This experiment involved training the neural network with just the wavelengths and predicting the transmittance (%). The initial training was done on data corresponding to PFI concentration equal to 13.4. This training results were used to find the best architecture in terms if lowest Mean Squared Error (MSE), highest R squared and lowest training times. Since choosing an architecture by training the network just once isn’t reliable, the training was done repeatedly 100 times. The MSEs, R squared values and the training times were then averaged over 100 ensembles. The results are recorded in Table \ref{tab:tableT1Nh}. 
+
+
+
+
+
+```{python TimportTable1, results = "asis"}
+
+import pandas as pd
+transmit_1_1 = pd.read_excel("Pickle_files/Transmittance/dataout/exp1_1/Ynew_performances_1_1 excel.xlsx", sheet_name= 'Sheet2')
+
+```
+
+
+```{r tableT1Nh}
+knitr::kable(py$transmit_1_1,digits = c(1,2,2,2,3,2), caption="Performance of MLP with varying number of neurons") %>%
+kable_styling(latex_options = "scale_down",font_size = 10) %>%
+row_spec(which(py$transmit_1_1$Nh ==8), bold = T, color = "white", background = "red")
+```
+
+
+
+
+
+
+As can be seen, 8 neurons is an appropriate choice, given that it gives appreciably low MSEs in a comparatively low training time. Using the ${1-8-1}$ architecture, its performance for concentration 13.4 in shown in Figure \ref{fig:transmitplot134}.
+
+
+
+```{python transmitplot134, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 13.4 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature13_4.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target13_4"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target13_4"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target13_4"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target13_4"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+
+
+The performances on other concentrations are plotted in Figures \ref{fig:transmitplot0}, \ref{fig:transmitplot1}, \ref{fig:transmitplot25}, \ref{fig:transmitplot6} and \ref{fig:transmitplot30} for PFI concentrations 0, 1, 2.5, 6 and 30 respectively. This gives an idea for the overall performance of the network for any given concentration.
+
+
+
+```{python transmitplot0, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 0 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature0.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target0"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target0"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target0"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target0"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+
+```{python transmitplot1, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 1.0 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature1.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target1"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target1"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target1"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target1"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+
+```{python transmitplot25, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 2.5 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature2_5.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target2_5"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target2_5"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target2_5"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target2_5"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+
+```{python transmitplot6, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 6 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature6.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target6"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target6"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target6"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target6"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+
+
+```{python transmitplot30, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 30 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_1/train_learned8feature30.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target30"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target30"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target30"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target30"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+```
+
+
+\newpage
+
+
+
+
+
+
+## Transmittance Experiment 1.2
+
+
+
+The exact same experiment was repeated but this time using FLANN. The first step was to choose the better performing FLANN polynomial from among Chebyshev, Legendre, Power and Trigonometric, each having 5 polynomials. The bar charts given in Figure \ref{fig:transflannbar} show the performance of each FLANN polynomial in terms of average MSE and average training time over 100 ensembles. Chebyshev was chosen as it gave the most negative MSE in dB (lowest absolute value of MSE). 
+
+
+```{python transflannbar, fig.cap="**Choosing the best FLANN Polynomial**: Comparison Using (A) Resulting Mean Squared Error (MSE) and, (B) Average training time."}
+
+import os
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+T_FLANN_poly_1_1 = pd.read_excel("Pickle_files/Transmittance_FLANN/flann_poly_1_1.xlsx", sheet_name= 'Sheet2')
+
+_ = plt.figure(figsize=(6,3))
+
+fig,AX = plt.subplots(1, 2, sharex=False, sharey=False)
+
+for ax in AX.flatten():
+    for label in ax.get_xticklabels():
+        label.set_rotation(45)
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[0].bar(T_FLANN_poly_1_1["Polynomial"], T_FLANN_poly_1_1["Test dB"])
+_ = AX[0].invert_yaxis()
+_ = AX[0].set_xlabel('Polynomials',fontsize=10)
+_ = AX[0].set_ylabel('Overall MSE (dB)', fontsize=10)
+_ = AX[0].set_title('A')
+#_ = plt.title('A', fontsize=10)
+
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[1].bar(T_FLANN_poly_1_1["Polynomial"], T_FLANN_poly_1_1["Avg. Train Time (seconds)"])
+
+_ = AX[1].set_xlabel('Polynomials',fontsize=10)
+_ = AX[1].set_ylabel('Average Train Time (seconds)', fontsize=10)
+_ = AX[1].set_title('B')
+#_ = plt.title('B', fontsize=10)
+_ = plt.ylim(1.0,1.2)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+
+```
+
+
+
+
+
+As in the case of MLP, the FLANN performance on PFI concentration 13.4, which is the concentration used to make the bar charts, is shown in  \ref{fig:transmitflannplot134}.
+
+
+```{python transmitflannplot134, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 13.4 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature13_4FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target13_4"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target13_4"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target13_4"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target13_4"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+The performance on other concentrations are shown in Figures \ref{fig:transmitflannplot0}, \ref{fig:transmitflannplot1}, \ref{fig:transmitflannplot25}, \ref{fig:transmitflannplot6} and \ref{fig:transmitflannplot30} for concentration 0, 1, 2.5, 6 and 30 respectively.
+
+
+```{python transmitflannplot0, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 0 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature0FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target0"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target0"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target0"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target0"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+
+
+```{python transmitflannplot1, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 1 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature1FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target1"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target1"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target1"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target1"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+```{python transmitflannplot25, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 2.5 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature2_5FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target2_5"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target2_5"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target2_5"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target2_5"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+```{python transmitflannplot6, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 6 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature6FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target6"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target6"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target6"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target6"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+```{python transmitflannplot30, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 30 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/chebyshev/dataout/exp1_1/feature30FLANN_transmit_1_1.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target30"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target30"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target30"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target30"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+\newpage
+
+
+
+
+
+
+## Transmittance Experiment 1.3
+
+
+The second part of the experiment with transmittance had two inputs to the ANN i.e. wavelength and the concentration. That means that the ANN will be trained to predict the Transmittance (%) of PEDOT:PSS layer  given the wavelength and PFI concentration present. For this, different architectures were compared to arrive at the better performing one. The hidden layer was limited to one and the numbers of neurons were varied within it. The performance of each architecture is shown in Table \ref{tab:tableT2Nh}. The architecture with 12 neurons was chosen as it gave the lowest MSE, with similar training times as other architectures. 
+
+
+```{python TimportTable2, results = "asis"}
+
+import pandas as pd
+transmit_1_2 = pd.read_excel("Pickle_files/Transmittance/dataout/exp1_2/Ynew_performances_1_2 excel.xlsx", sheet_name= 'Sheet2')
+
+```
+
+
+```{r tableT2Nh}
+knitr::kable(py$transmit_1_2,digits = c(1,2,2,2,3,2), caption="Performance of MLP with varying number of neurons") %>%
+kable_styling(latex_options = "scale_down",font_size = 10) %>%
+row_spec(which(py$transmit_1_2$Nh ==12), bold = T, color = "white", background = "red")
+```
+
+
+
+
+
+
+Using the {$2-12-1$} architecture, the performance of the MLP is shown in \ref{fig:transmitplot2} for both the test and training samples. As obvious, the performance can be seen to be better on training samples compared to the testing samples as the MLP is familiar with the training dataset examples and has used them to train itself, while the testing dataset examples are new to the network.
+
+
+
+```{python transmitplot2, fig.cap="**MLP results**: MLP Perfromance on (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance/dataout/exp1_2/train_learned_nh_12.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+
+
+One possible application for such a network can be to predict the transmittance of the PEDOT:PSS layer with a specific PFI concentration prior to manufacturing the layer. The optical characteristics, if known beforehand, can assist in assessing the usefulness of the PEDOT:PSS layer in the practical applications at hand. With this in mind, the MLP was provided a new unknown concentration and wavelength values in the range given in Figure \ref{fig:transfig}. The two PFI concentrations of 29 and 15 were chosen because of their numerical closeness to the already known concentrations of 30 and 13.4 respectively. This allowed the plotting of transmittance vs. wavelength characteristics of both concentrations, one new (i.e. 29 or 15) and one already known (30 or 13.4) on the same figure. Ideally, their lines should follow close to each other because both concentrations are almost equal. The results are given in Figure \ref{fig:transnew}. As can be seen, the predictions seem pretty accurate as the two lines are very close to each other.
+
+
+```{python transnew, fig.cap="**Predicting Transmittance of a new PFI concentration **: (A) A new PFI concentration of 29, (B) A new PFI concentration of 15. "}
+
+
+import numpy as np
+import pickle
+pklfile = open(file = "Pickle_files/Transmittance/dataout/Transmittance_test_concentration1_1/test_concentration29" + ".pkl", mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+pklfile = open(file = "Pickle_files/Transmittance/dataout/Transmittance_test_concentration1_1/test_concentration15" + ".pkl", mode="rb")
+obj2=pickle.load(pklfile)
+pklfile.close()
+
+
+import matplotlib.pyplot as plt
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([88,100])
+
+
+_ = plt.plot(obj["data1"]['wavelength'],obj["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj["data30"]['wavelength'],obj["data30"]['target'], 'b', label= 'PFI concentration=30')
+
+axes = plt.gca()
+_ = axes.set_ylim([88,100])
+_ = plt.legend()
+_ = plt.xlabel('wavelength (nm)' ,fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('A', fontsize=10)
+#plt.suptitle('J FLANN Prediction for new conc=' + str(test_concentration),fontsize=20)
+
+
+
+_ = plt.subplot(1,2,2)
+
+_ = plt.plot(obj2["data1"]['wavelength'],obj2["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj2["data13_4"]['wavelength'],obj2["data13_4"]['target'], 'g', label= 'PFI concentration=13.4')
+
+axes = plt.gca()
+
+_ = axes.set_ylim([88,100])
+_ = plt.legend()
+_ = plt.xlabel('wavelength (nm)' ,fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+_ = plt.tight_layout()
+_ = plt.show();
+
+```
+
+
+\newpage
+
+## Transmittance Experiment 1.4
+
+Based on the bar chart of Figure \ref{fig:transflannbar2}, Trigonometric FLANN has the lowest MSE. Therefore, we have chosen Trigonometric FLANN. Its performance on the dataset can be seen in Figure \ref{fig:transmitflannplot2}.
+
+
+```{python transflannbar2, fig.cap="**Choosing the best FLANN Polynomial**: Comparison Using (A) Resulting Mean Squared Error (MSE) and, (B) Average training time."}
+
+import os
+
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+import matplotlib.pyplot as plt
+
+trans_FLANN_poly_1_2 = pd.read_excel("Pickle_files/Transmittance_FLANN/flann_poly_1_2.xlsx", sheet_name= 'Sheet2')
+
+
+_ = plt.figure(figsize=(6,3))
+
+fig,AX = plt.subplots(1, 2, sharex=False, sharey=False)
+
+for ax in AX.flatten():
+    for label in ax.get_xticklabels():
+        label.set_rotation(45)
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[0].bar(trans_FLANN_poly_1_2["Polynomial"], trans_FLANN_poly_1_2["Test dB"])
+_ = AX[0].invert_yaxis()
+_ = AX[0].set_xlabel('Polynomials',fontsize=10)
+_ = AX[0].set_ylabel('Overall MSE (dB)', fontsize=10)
+_ = AX[0].set_title('A')
+#_ = plt.title('A', fontsize=10)
+
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[1].bar(trans_FLANN_poly_1_2["Polynomial"], trans_FLANN_poly_1_2["Avg. Train Time mean"])
+
+_ = AX[1].set_xlabel('Polynomials',fontsize=10)
+_ = AX[1].set_ylabel('Average Train Time (seconds)', fontsize=10)
+#_ = plt.title('B', fontsize=10)
+_ = AX[1].set_title('B')
+_ = plt.ylim(1.0,1.2)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+
+```
+
+
+```{python transmitflannplot2, fig.cap="**FLANN results**: FLANN Perfromance for (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/Transmittance_FLANN/trigonometric/dataout/exp1_2/FLANN_transmit_1_2.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+The transmittance percentage of new PFI concentrations 29 and 15 are shown in\ref{fig:transflannnew}. The performance of FLANN isn’t as good as it was of the MLP. Notice how the predicted values fluctuate above and below the already known transmittance values of almost equal concentrations. For this purpose, MLP will be chosen as it gave a better, more reliable performance.
+
+
+
+```{python transflannnew, fig.cap="**Predicting Transmittance of a new PFI concentration **: (A) A new PFI concentration of 29, (B) A new PFI concentration of 15. "}
+
+
+import numpy as np
+import pickle
+pklfile = open(file = "Pickle_files/Transmittance_FLANN/trigonometric/dataout/Transmit_test_concentration1_1/test_concentration29trigonometric" + ".pkl", mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+pklfile = open(file = "Pickle_files/Transmittance_FLANN/trigonometric/dataout/Transmit_test_concentration1_1/test_concentration15trigonometric" + ".pkl", mode="rb")
+obj2=pickle.load(pklfile)
+pklfile.close()
+
+
+import matplotlib.pyplot as plt
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([88,100])
+
+
+_ = plt.plot(obj["data1"]['wavelength'],obj["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj["data30"]['wavelength'],obj["data30"]['target'], 'b', label= 'PFI concentration=30')
+
+axes = plt.gca()
+_ = axes.set_ylim([88,100])
+_ = plt.legend()
+_ = plt.xlabel('wavelength (nm)' ,fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('A', fontsize=10)
+#plt.suptitle('J FLANN Prediction for new conc=' + str(test_concentration),fontsize=20)
+
+
+
+_ = plt.subplot(1,2,2)
+
+_ = plt.plot(obj2["data1"]['wavelength'],obj2["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj2["data13_4"]['wavelength'],obj2["data13_4"]['target'], 'g', label= 'PFI concentration=13.4')
+
+axes = plt.gca()
+
+_ = axes.set_ylim([88,100])
+_ = plt.legend()
+_ = plt.xlabel('wavelength (nm)' ,fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+_ = plt.tight_layout()
+_ = plt.show();
+
+```
+
+
+
+\newpage
+
+
+
+## Current Density Experiment 2.1
+
+
+Experiments similar to the transmittance vs. wavelength characteristic were conducted for the current density vs. voltage characteristic as well. That means the first experiment involved predicting, for any one PFI concentration, the current density when voltage is provided as an input to the ANN. Just as before, the PFI concentration chosen was 13.4 in order to select the best performing architecture. The numbers of neurons in the hidden layer were varied and their effect on averages of MSE, R squared and training times over 100 ensembles were recorded in Table \ref{tab:tableJV1Nh}. The architecture ${1-8-1}$  gave high enough average MSEs for overall, training and test dataset with appreciable training times.
+
+
+```{python JVimportTable1, results = "asis"}
+
+import pandas as pd
+JV_1_1 = pd.read_excel("Pickle_files/JV/dataout/JV1_1/Ynew_performances_1_1 excel.xlsx", sheet_name= 'Sheet2')
+
+```
+
+
+```{r tableJV1Nh}
+knitr::kable(py$JV_1_1,digits = c(1,2,2,2,3,2), caption="Performance of MLP with varying number of neurons") %>%
+kable_styling(latex_options = "scale_down",font_size = 10) %>%
+row_spec(which(py$JV_1_1$Nh ==8), bold = T, color = "white", background = "red")
+```
+
+
+
+
+
+
+
+
+The actual vs. predicted values for concentration 13.4 are shown in \ref{fig:JVplot134}.
+
+```{python JVplot134, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 13.4 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV/dataout/JV1_1/train_learned8feature13_4.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target13_4"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target13_4"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target13_4"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target13_4"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+The performance of the chosen MLP for PFI concentrations 0, 1 and 30 are shown in \ref{fig:JVplot0}, \ref{fig:JVplot1} and \ref{fig:JVplot30} respectively.
+
+```{python JVplot0, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 0 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV/dataout/JV1_1/train_learned8feature0.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target0"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target0"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target0"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target0"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+```{python JVplot1, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 1 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV/dataout/JV1_1/train_learned8feature1.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target1"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target1"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target1"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target1"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+```{python JVplot30, fig.cap="**MLP results**: MLP Perfromance for PFI concentration 30 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV/dataout/JV1_1/train_learned8feature0.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target30"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target30"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target30"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target30"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+\newpage
+
+
+
+## Current Density Experiment 2.2
+
+
+For the same problem, a FLANN was used instead of MLP. The different polynomials were tested for their suitability and the results are shown in Figure \ref{fig:jvflannbar}. As in the case of transmittance for the corresponding experiment, the preferred polynomial is Chebyshev due to its most negative average MSE and lowest average training time.
+
+
+
+```{python jvflannbar, fig.cap="**Choosing the best FLANN Polynomial**: Comparison Using (A) Resulting Mean Squared Error (MSE) and, (B) Average training time."}
+
+import os
+
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+import matplotlib.pyplot as plt
+
+JV_FLANN_poly_1_1 = pd.read_excel("Pickle_files/JV_FLANN/FLANN_poly_1_1.xlsx", sheet_name= 'Sheet2')
+
+
+_ = plt.figure(figsize=(6,3));
+
+fig,AX = plt.subplots(1, 2, sharex=False, sharey=False);
+
+for ax in AX.flatten():
+    for label in ax.get_xticklabels():
+        _ = label.set_rotation(45);
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[0].bar(JV_FLANN_poly_1_1["Polynomial"], JV_FLANN_poly_1_1["Test dB"]);
+_ = AX[0].invert_yaxis();
+_ = AX[0].set_xlabel('Polynomials',fontsize=10);
+_ = AX[0].set_ylabel('Overall MSE (dB)', fontsize=10);
+#_ = plt.title('A', fontsize=10)
+_ = AX[0].set_title('A')
+
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[1].bar(JV_FLANN_poly_1_1["Polynomial"], JV_FLANN_poly_1_1["Avg. Train Time (seconds)"]);
+
+_ = AX[1].set_xlabel('Polynomials',fontsize=10);
+_ = AX[1].set_ylabel('Average Train Time (seconds)', fontsize=10);
+_ = plt.ylim(1.0,1.2);
+#_ = plt.title('B', fontsize=10)
+_ = AX[1].set_title('B')
+_ = plt.tight_layout();
+_ = plt.show();
+
+
+
+```
+
+
+
+Its performance for PFI concentration 13.4 is shown in Figure \ref{fig:JVflannplot134}. 
+
+
+
+```{python JVflannplot134, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 13.4 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility_flann import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV_FLANN/chebyshev/dataout/JV1_1/feature13_4FLANN_JV_1_1.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target13_4"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target13_4"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target13_4"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target13_4"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+Performance of Chebyshev FLANN on PFI concentrations 0, 1 and 30 are shown in Figures \ref{fig:JVflannplot0}, \ref{fig:JVflannplot1} and \ref{fig:JVflannplot30} respectively.
+
+
+
+```{python JVflannplot0, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 0 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility_flann import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV_FLANN/chebyshev/dataout/JV1_1/feature0FLANN_JV_1_1.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target0"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target0"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target0"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target0"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+```{python JVflannplot1, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 1 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility_flann import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV_FLANN/chebyshev/dataout/JV1_1/feature1FLANN_JV_1_1.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target1"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target1"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target1"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target1"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+```{python JVflannplot30, fig.cap="**FLANN results**: FLANN Perfromance for PFI concentration 30 (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility_flann import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV_FLANN/chebyshev/dataout/JV1_1/feature30FLANN_JV_1_1.pkl",
+mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+ 
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target30"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target30"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target30"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target30"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') ;
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') ;
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+\newpage
+
+
+## Current Density Experiment 2.3
+
+
+The second experiment on current density vs. voltage involved predicting current density based on voltage and PFI concentration present in the HEL layer. The ANN therefore had two input neurons and the neurons in the hidden layer were varied as given in Table \ref{tab:tableJV2Nh}. The architecture ${2-12-1}$ was chosen due to its low average MSEs and high average R squared values.
+
+
+
+```{python JVimportTable2, results = "asis"}
+
+import pandas as pd
+JV_1_2 = pd.read_excel("Pickle_files/JV/dataout/JV1_2/Ynew_performances_1_2 excel.xlsx", sheet_name= 'Sheet2')
+
+```
+
+
+```{r tableJV2Nh}
+knitr::kable(py$JV_1_2,digits = c(1,2,2,2,3,2), caption="Performance of MLP with varying number of neurons") %>%
+kable_styling(latex_options = "scale_down",font_size = 10) %>%
+row_spec(which(py$JV_1_2$Nh ==12), bold = T, color = "white", background = "red")
+```
+
+
+
+
+The performance of the MLP is shown in Figure \ref{fig:JVplot2}
+
+
+```{python JVplot2, fig.cap="**MLP results**: MLP Perfromance on (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from JVutility import make_norm, make_unnorm
+import matplotlib.pyplot as plt
+
+import pickle
+pklfile = open(file ="Pickle_files/JV/dataout/JV1_2/train_learned_nh_12.pkl",mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+The MLP will be used for prediction for a new concentration for which we don’t have the experimental data. The new PFI concentrations are 29 and 15 and the predicted values are shown against another numerically close, known concentration in Figure \ref{fig:JVnew}
+
+
+```{python JVnew, fig.cap="**Predicting Transmittance of a new PFI concentration **: (A) A new PFI concentration of 29, (B) A new PFI concentration of 15. "}
+
+
+import numpy as np
+import pickle
+pklfile = open(file = "Pickle_files/JV/dataout/JVtest_concentration1_1/test_concentration29" + ".pkl", mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+pklfile = open(file = "Pickle_files/JV/dataout/JVtest_concentration1_1/test_concentration15" + ".pkl", mode="rb")
+obj2=pickle.load(pklfile)
+pklfile.close()
+
+
+import matplotlib.pyplot as plt
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([-9,9])
+
+
+_ = plt.plot(obj["data1"]['V'],obj["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj["data30"]['V'],obj["data30"]['target'], 'b', label= 'PFI concentration=30')
+
+axes = plt.gca()
+_ = axes.set_ylim([-9,9])
+_ = plt.legend()
+_ = plt.xlabel('V (Volt)' ,fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('A', fontsize=10)
+#plt.suptitle('J FLANN Prediction for new conc=' + str(test_concentration),fontsize=20)
+
+
+
+_ = plt.subplot(1,2,2)
+
+_ = plt.plot(obj2["data1"]['V'],obj2["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj2["data13_4"]['V'],obj2["data13_4"]['target'], 'g', label= 'PFI concentration=13.4')
+
+axes = plt.gca()
+
+_ = axes.set_ylim([-9,9])
+_ = plt.legend()
+_ = plt.xlabel('V (Volt)' ,fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+_ = plt.tight_layout()
+_ = plt.show();
+
+```
+
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+## Current Density Experiment 2.4
+
+
+
+As can be seen in \ref{fig:jvflannbar2}, the Power polynomial gives good results in terms of both average MSE and average training time. Its performance is shown in Figure \ref{fig:jvflannplot2} for both test and training data. 
+
+
+```{python jvflannbar2, fig.cap="**Choosing the best FLANN Polynomial**: Comparison Using (A) Resulting Mean Squared Error (MSE) and, (B) Average training time."}
+
+import os
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+import matplotlib.pyplot as plt
+
+JV_FLANN_poly_1_2 = pd.read_excel("Pickle_files/JV_FLANN/FLANN_poly_1_2.xlsx", sheet_name= 'Sheet2')
+
+
+_ = plt.figure(figsize=(6,3))
+
+fig,AX = plt.subplots(1, 2, sharex=False, sharey=False)
+
+for ax in AX.flatten():
+    for label in ax.get_xticklabels():
+        _ = label.set_rotation(45)
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[0].bar(JV_FLANN_poly_1_2["Polynomial"], JV_FLANN_poly_1_2["Test dB"])
+_ = AX[0].invert_yaxis()
+_ = AX[0].set_xlabel('Polynomials',fontsize=10)
+_ = AX[0].set_ylabel('Overall MSE (dB)', fontsize=10)
+#_ = plt.title('A', fontsize=10)
+_ = AX[0].set_title('A')
+
+
+#fig, ax1 = plt.subplots(1,1)
+_ = AX[1].bar(JV_FLANN_poly_1_2["Polynomial"], JV_FLANN_poly_1_2["Avg. Train Time mean"])
+
+_ = AX[1].set_xlabel('Polynomials',fontsize=10)
+_ = AX[1].set_ylabel('Average Train Time (seconds)', fontsize=10)
+#_ = plt.title('B', fontsize=10)
+_ = AX[1].set_title('B')
+_ = plt.ylim(1.0,1.2)
+_ = plt.tight_layout()
+_ = plt.show();
+
+
+
+```
+
+
+```{python jvflannplot2, fig.cap="**FLANN results**: FLANN Perfromance for (A) Testing Dataset, and (B) Training Dataset"}
+import os
+import pandas as pd
+
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/ProgramData/Anaconda3/Library/plugins/platforms'
+
+from Tutility_flann import make_norm, make_unnorm
+
+
+import pickle
+pklfile = open(file ="Pickle_files/JV_FLANN/power/dataout/JV1_2/FLANN_JV_1_2.pkl",mode="rb")
+
+#pklfile = open(file= "feature13_4FLANN_transmit_1_1.pkl", mode = "rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+ytest_pd= pd.DataFrame(obj["ytest"], columns=["target"])
+ytest_unnorm= make_unnorm(ytest_pd, obj["norm_lims"])
+
+
+yhat_pd= pd.DataFrame(obj["yhat"], columns=["target"])
+yhat_unnorm= make_unnorm(yhat_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytest_unnorm, 'bs', label='True Value') 
+_ = plt.plot(yhat_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+#    t = np.arange(0, len(ytest_unnormed), 1)
+#    plt.xticks(t)
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Test Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+_ = plt.title('A', fontsize=10)
+
+#plt.suptitle('Transmittance Prediction of Test Samples',fontsize=20)
+
+
+_ = plt.subplot(1,2,2)
+ytrain_pd= pd.DataFrame(obj["ytrain"], columns=["target"])
+ytrain_unnorm= make_unnorm(ytrain_pd, obj["norm_lims"])
+
+
+ytrain_out_pd= pd.DataFrame(obj["ytrain_out"], columns=["target"])
+ytrain_out_unnorm= make_unnorm(ytrain_out_pd, obj["norm_lims"])
+
+
+_ = plt.plot(ytrain_unnorm, 'bs', label='True Value') 
+_ = plt.plot(ytrain_out_unnorm, 'r^', label='Predicted Value') 
+_ = plt.legend()
+
+_ = plt.grid(which='both', axis = 'both')
+_ = plt.xlabel('Train Samples',fontsize=10)
+_ = plt.ylabel('T%', fontsize=10)
+_ = plt.title('B', fontsize=10)
+#plt.suptitle('Transmittance Prediction of Train Samples',fontsize=20)
+_ = plt.tight_layout()
+_ = plt.show();
+```
+
+
+
+As done previously, the new PFI concentrations chosen are 29 and 15 and their results are given in \ref{fig:jvflannnew}. The new concentrations follow closely with the known concentrations , thus indicating that FLANN is working properly. 
+
+
+
+```{python jvflannnew, fig.cap="**Predicting Current Density of a new PFI concentration **: (A) A new PFI concentration of 29, (B) A new PFI concentration of 15. "}
+
+
+import numpy as np
+import pickle
+pklfile = open(file = "Pickle_files/JV_FLANN/power/dataout/JVtest_concentration1_1/test_concentration29power" + ".pkl", mode="rb")
+obj=pickle.load(pklfile)
+pklfile.close()
+
+
+pklfile = open(file = "Pickle_files/JV_FLANN/power/dataout/JVtest_concentration1_1/test_concentration15power" + ".pkl", mode="rb")
+obj2=pickle.load(pklfile)
+pklfile.close()
+
+
+import matplotlib.pyplot as plt
+
+_ = plt.figure(figsize=(6,3))
+
+_ = plt.subplot(1,2,1)
+
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([-9,9])
+
+
+_ = plt.plot(obj["data1"]['V'],obj["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj["data30"]['V'],obj["data30"]['target'], 'b', label= 'PFI concentration=30')
+
+#plt.plot(obj["data0"]['target'], 'k', label= 'conc=0')
+#plt.plot(obj["data1"]['target'], 'r', label= 'conc=1')
+#plt.plot(obj["data13_4"]['target'], 'g', label= 'conc=13.4')
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([-9,9])
+_ = plt.legend()
+_ = plt.xlabel('Voltage (V)' ,fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('A', fontsize=10)
+#plt.suptitle('J FLANN Prediction for new conc=' + str(test_concentration),fontsize=20)
+
+
+
+_ = plt.subplot(1,2,2)
+
+_ = plt.plot(obj2["data1"]['V'],obj2["yhat"], 'm^', label='Predicted Value') 
+_ = plt.plot(obj2["data13_4"]['V'],obj2["data13_4"]['target'], 'g', label= 'PFI concentration=13.4')
+
+#plt.plot(obj["data0"]['target'], 'k', label= 'conc=0')
+#plt.plot(obj["data1"]['target'], 'r', label= 'conc=1')
+#plt.plot(obj2["data30"]['target'], 'b', label= 'conc=30')
+axes = plt.gca()
+#axes.set_xlim([xmin,xmax])
+_ = axes.set_ylim([-9,9])
+_ = plt.legend()
+_ = plt.xlabel('Voltage (V)' ,fontsize=10)
+_ = plt.ylabel('J(mA/cm^2)', fontsize=10)
+_ = plt.title('B', fontsize=10)
+_ = plt.tight_layout()
+_ = plt.show();
+
+```
+
+
+
+# Conclusion
+The modeling of transmittance vs. wavelength and current density vs. voltage for OPVs containing PFI additive in the PEDOT:PSS hole extracting layer can be done to a reasonable accuracy. Except for the single input ANN in the case of current density vs. voltage characteristic, the accuracies obtained through MLP were always slightly higher than through FLANN. FLANN, however, had an edge in terms of having lower training times.
+
+
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+# References {.allowframebreaks}
+
+
+
+
+
+\widowpenalty=150
+\clubpenalty=150
+
+
+# (APPENDIX) Appendix {-}
+
+
+
